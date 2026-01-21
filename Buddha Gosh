@@ -1,1 +1,115 @@
+import { ReactNode } from 'react';
+import { motion } from 'framer-motion';
+import { 
+  LayoutDashboard, 
+  ScanLine, 
+  ClipboardList, 
+  UtensilsCrossed, 
+  User,
+  Bell,
+  ChefHat
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useApp } from '@/contexts/AppContext';
+
+interface CanteenLayoutProps {
+  children: ReactNode;
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
+}
+
+export function CanteenLayout({ 
+  children, 
+  activeTab = 'dashboard',
+  onTabChange
+}: CanteenLayoutProps) {
+  const { user, orders } = useApp();
+
+  const pendingOrders = orders.filter(o => 
+    !['served', 'cancelled'].includes(o.status)
+  ).length;
+
+  const tabs = [
+    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { id: 'scan', icon: ScanLine, label: 'Scan QR' },
+    { id: 'orders', icon: ClipboardList, label: 'Orders', badge: pendingOrders },
+    { id: 'menu', icon: UtensilsCrossed, label: 'Menu' },
+    { id: 'profile', icon: User, label: 'Profile' },
+  ];
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <header className="sticky top-0 z-50 glass border-b border-border">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl gradient-canteen flex items-center justify-center">
+              <ChefHat className="w-5 h-5 text-canteen-foreground" />
+            </div>
+            <div>
+              <h1 className="font-bold text-lg">CampusEats</h1>
+              <p className="text-xs text-muted-foreground">Canteen Dashboard</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="w-5 h-5" />
+              {pendingOrders > 0 && (
+                <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full animate-pulse" />
+              )}
+            </Button>
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-canteen to-canteen/60 flex items-center justify-center overflow-hidden">
+              {user?.avatar ? (
+                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-4 h-4 text-canteen-foreground" />
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Content */}
+      <main className="flex-1 container mx-auto px-4 py-6 pb-24">
+        {children}
+      </main>
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 glass border-t border-border z-50">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-around h-16">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange?.(tab.id)}
+                className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors relative ${
+                  activeTab === tab.id 
+                    ? 'text-canteen' 
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <div className="relative">
+                  <tab.icon className="w-5 h-5" />
+                  {tab.badge && tab.badge > 0 && (
+                    <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center">
+                      {tab.badge}
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs font-medium">{tab.label}</span>
+                {activeTab === tab.id && (
+                  <motion.div 
+                    layoutId="canteenActiveTab"
+                    className="absolute -bottom-1 w-1 h-1 rounded-full bg-canteen"
+                  />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      </nav>
+    </div>
+  );
+}
 
