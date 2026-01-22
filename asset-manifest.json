@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/static/css/main.2e7cdb20.css",
-    "main.js": "/static/js/main.3e4782e7.js",
-    "static/js/453.70c9b135.chunk.js": "/static/js/453.70c9b135.chunk.js",
-    "index.html": "/index.html",
-    "main.2e7cdb20.css.map": "/static/css/main.2e7cdb20.css.map",
-    "main.3e4782e7.js.map": "/static/js/main.3e4782e7.js.map",
-    "453.70c9b135.chunk.js.map": "/static/js/453.70c9b135.chunk.js.map"
+    "main.css": "/CampusEats/static/css/main.2e7cdb20.css",
+    "main.js": "/CampusEats/static/js/main.5a31356b.js",
+    "static/js/453.70c9b135.chunk.js": "/CampusEats/static/js/453.70c9b135.chunk.js",
+    "index.html": "/CampusEats/index.html",
+    "main.2e7cdb20.css.map": "/CampusEats/static/css/main.2e7cdb20.css.map",
+    "main.5a31356b.js.map": "/CampusEats/static/js/main.5a31356b.js.map",
+    "453.70c9b135.chunk.js.map": "/CampusEats/static/js/453.70c9b135.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.2e7cdb20.css",
-    "static/js/main.3e4782e7.js"
+    "static/js/main.5a31356b.js"
   ]
 }
