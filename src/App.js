@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Utensils, ShoppingBag, CreditCard,
   CheckCircle, User, LogOut,
-  Coffee, Pizza, ChevronRight,
-  MapPin, Clock, Search, Plus, Minus,
+  Coffee, Clock, Search, Plus, Minus,
   ChefHat, Trash2, ArrowRight, QrCode,
   Edit, PlusCircle, X
 } from "lucide-react";
