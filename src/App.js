@@ -1,3 +1,4 @@
+import DarkVeil from "./components/DarkVeil";
 import React, { useEffect, useState } from "react";
 import {
   Utensils, ShoppingBag, CreditCard,
