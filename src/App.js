@@ -6,22 +6,6 @@ import {
   ChefHat, Trash2, ArrowRight, QrCode,
   Edit, PlusCircle, X, Palette, Sun, Moon, TreePine, Sunrise, Waves, CloudSun
 } from "lucide-react";
-
-import DarkVeil, { THEMES } from "./components/DarkVeil";
-import GradualBlur from "./components/GradualBlur";
-import GlareHover from "./components/GlareHover";
-
-// Theme icons mapping
-const THEME_ICONS = {
-  default: Palette,
-  forest: TreePine,
-  sunshine: Sun,
-  morning: Sunrise,
-  ocean: Waves,
-  sunset: CloudSun,
-  night: Moon
-};
-
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
@@ -43,6 +27,22 @@ import {
   setDoc,
   getDoc
 } from "firebase/firestore";
+
+
+import DarkVeil, { THEMES } from "./components/DarkVeil";
+import GradualBlur from "./components/GradualBlur";
+import GlareHover from "./components/GlareHover";
+
+// Theme icons mapping
+const THEME_ICONS = {
+  default: Palette,
+  forest: TreePine,
+  sunshine: Sun,
+  morning: Sunrise,
+  ocean: Waves,
+  sunset: CloudSun,
+  night: Moon
+};
 
 /* ================= FIREBASE CONFIGURATION ================= */
 
