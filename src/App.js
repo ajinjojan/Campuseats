@@ -4,12 +4,23 @@ import {
   CheckCircle, User, LogOut,
   Coffee, Clock, Search, Plus, Minus,
   ChefHat, Trash2, ArrowRight, QrCode,
-  Edit, PlusCircle, X, Palette
+  Edit, PlusCircle, X, Palette, Sun, Moon, TreePine, Sunrise, Waves, CloudSun
 } from "lucide-react";
 
 import DarkVeil, { THEMES } from "./components/DarkVeil";
 import GradualBlur from "./components/GradualBlur";
 import GlareHover from "./components/GlareHover";
+
+// Theme icons mapping
+const THEME_ICONS = {
+  default: Palette,
+  forest: TreePine,
+  sunshine: Sun,
+  morning: Sunrise,
+  ocean: Waves,
+  sunset: CloudSun,
+  night: Moon
+};
 
 import { initializeApp } from "firebase/app";
 import {
@@ -107,7 +118,7 @@ const Card = ({ children, className = "" }) => (
 );
 
 // --- Auth Screens ---
-const AuthScreen = ({ role, onLogin, onSignup, setStep, setRole }) => {
+const AuthScreen = ({ role, onLogin, onSignup, setStep, setRole, currentTheme }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -143,17 +154,25 @@ const AuthScreen = ({ role, onLogin, onSignup, setStep, setRole }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen relative flex flex-col items-center justify-center p-6 overflow-hidden">
+      {/* DarkVeil Background */}
+      <div className="absolute inset-0 z-0">
+        <DarkVeil theme={currentTheme} />
+      </div>
+      
+      {/* Overlay for readability */}
+      <div className="absolute inset-0 bg-black/30 z-0" />
+
+      <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600 text-white mb-4 shadow-xl shadow-indigo-200">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm text-white mb-4 shadow-xl">
             <Utensils size={32} />
           </div>
-          <h1 className="text-3xl font-bold text-slate-900">Campus Eats</h1>
-          <p className="text-slate-500 mt-2">Ordering food made simple</p>
+          <h1 className="text-3xl font-bold text-white drop-shadow-lg">Campus Eats</h1>
+          <p className="text-white/80 mt-2">Ordering food made simple</p>
         </div>
 
-        <Card className="p-6 md:p-8">
+        <Card className="p-6 md:p-8 bg-white/95 backdrop-blur-md">
           <div className="flex gap-2 p-1 bg-slate-100 rounded-xl mb-6">
             <button
               onClick={() => setIsLogin(true)}
@@ -215,7 +234,7 @@ const AuthScreen = ({ role, onLogin, onSignup, setStep, setRole }) => {
 
         <button
           onClick={() => { setStep("role"); setRole(null); }}
-          className="w-full mt-6 text-sm text-slate-500 hover:text-indigo-600 font-medium"
+          className="w-full mt-6 text-sm text-white/80 hover:text-white font-medium"
         >
           ← Change Role
         </button>
@@ -225,7 +244,7 @@ const AuthScreen = ({ role, onLogin, onSignup, setStep, setRole }) => {
 };
 
 // --- Student App ---
-const StudentApp = ({ menu, orders, addToOrder, user, userProfile, updateUserProfile, logout }) => {
+const StudentApp = ({ menu, orders, addToOrder, user, userProfile, updateUserProfile, logout, currentTheme, onThemeChange }) => {
   const [activeTab, setActiveTab] = useState("menu");
   const [cart, setCart] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -290,7 +309,7 @@ const StudentApp = ({ menu, orders, addToOrder, user, userProfile, updateUserPro
   );
 
   return (
-    <div className="h-screen bg-slate-50 flex flex-col overflow-hidden">
+    <div className="h-screen bg-slate-50 flex flex-col overflow-hidden relative">
       {/* Header */}
       <header className="bg-white border-b border-slate-200 px-4 py-3 flex justify-between items-center sticky top-0 z-10">
         <div className="flex items-center gap-2">
@@ -300,6 +319,7 @@ const StudentApp = ({ menu, orders, addToOrder, user, userProfile, updateUserPro
           <h1 className="font-bold text-slate-800">Campus Eats</h1>
         </div>
         <div className="flex items-center gap-2">
+           <ThemeSelector currentTheme={currentTheme} onThemeChange={onThemeChange} />
            <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-full">{userProfile?.name || "Student"}</span>
            <button onClick={logout} className="p-2 text-slate-400 hover:text-red-500 transition-colors">
             <LogOut size={18} />
@@ -308,7 +328,7 @@ const StudentApp = ({ menu, orders, addToOrder, user, userProfile, updateUserPro
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto pb-24">
+      <main className="flex-1 overflow-y-auto pb-24 relative">
         
         {/* MENU VIEW */}
         {activeTab === "menu" && (
@@ -516,6 +536,18 @@ const StudentApp = ({ menu, orders, addToOrder, user, userProfile, updateUserPro
         )}
       </main>
 
+      {/* GradualBlur at bottom of content */}
+      <GradualBlur
+        target="parent"
+        position="bottom"
+        height="5rem"
+        strength={1.5}
+        divCount={4}
+        curve="ease-out"
+        opacity={0.9}
+        style={{ bottom: '72px' }}
+      />
+
       {/* Bottom Navigation */}
       <nav className="bg-white border-t border-slate-200 flex justify-around items-center p-2 pb-safe sticky bottom-0 z-50">
         {[
@@ -548,7 +580,7 @@ const StudentApp = ({ menu, orders, addToOrder, user, userProfile, updateUserPro
 };
 
 // --- Staff App ---
-const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMenu, onAddMenu }) => {
+const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMenu, onAddMenu, currentTheme, onThemeChange }) => {
   const [activeTab, setActiveTab] = useState("dashboard"); // dashboard | menu
   const [filter, setFilter] = useState("Placed");
   const [verifyModalOpen, setVerifyModalOpen] = useState(false);
@@ -612,8 +644,14 @@ const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMen
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col">
-      <header className="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shadow-md sticky top-0 z-20">
-        <div className="flex items-center gap-3">
+      <header className="relative text-white px-6 py-4 flex justify-between items-center shadow-md sticky top-0 z-20 overflow-hidden">
+        {/* DarkVeil Header Background */}
+        <div className="absolute inset-0 z-0">
+          <DarkVeil theme={currentTheme} speed={0.2} />
+        </div>
+        <div className="absolute inset-0 bg-slate-900/60 z-0" />
+        
+        <div className="flex items-center gap-3 relative z-10">
           <ChefHat className="text-orange-400" />
           <div>
              <h1 className="font-bold text-lg leading-none">Kitchen Dashboard</h1>
@@ -621,7 +659,8 @@ const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMen
           </div>
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex gap-2 relative z-10">
+           <ThemeSelector currentTheme={currentTheme} onThemeChange={onThemeChange} />
            <button 
              onClick={() => setActiveTab("dashboard")} 
              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'dashboard' ? 'bg-orange-500 text-white' : 'text-slate-300 hover:text-white'}`}
@@ -634,7 +673,7 @@ const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMen
            >
              Menu
            </button>
-           <button onClick={logout} className="ml-4 p-2 bg-slate-800 rounded-lg hover:bg-slate-700 text-slate-300 hover:text-white transition-colors">
+           <button onClick={logout} className="ml-4 p-2 bg-slate-800/50 rounded-lg hover:bg-slate-700 text-slate-300 hover:text-white transition-colors">
              <LogOut size={18}/>
            </button>
         </div>
@@ -844,175 +883,153 @@ const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMen
 };
 
 
-// --- Component Demo ---
-const ComponentDemo = ({ onBack }) => {
-  const [selectedTheme, setSelectedTheme] = useState('default');
+// --- Theme Selector Component ---
+const ThemeSelector = ({ currentTheme, onThemeChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const ThemeIcon = THEME_ICONS[currentTheme] || Palette;
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
-      <div className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-sm border-b border-slate-700 p-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <button
-            onClick={onBack}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors flex items-center gap-2"
-          >
-            <ArrowRight size={16} className="rotate-180" />
-            Back to App
-          </button>
-          <h1 className="text-xl font-bold flex items-center gap-2">
-            <Palette size={24} />
-            Component Showcase
-          </h1>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto p-6 space-y-12">
-        {/* Theme Selector */}
-        <div className="bg-slate-800 rounded-2xl p-6">
-          <h2 className="text-2xl font-bold mb-4">DarkVeil Theme Selector</h2>
-          <div className="flex flex-wrap gap-3">
-            {Object.keys(THEMES).map(theme => (
-              <button
-                key={theme}
-                onClick={() => setSelectedTheme(theme)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  selectedTheme === theme
-                    ? 'bg-indigo-600 text-white shadow-lg'
-                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                }`}
-              >
-                {theme.charAt(0).toUpperCase() + theme.slice(1)}
-              </button>
-            ))}
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="p-3 bg-white/20 backdrop-blur-sm rounded-xl text-white hover:bg-white/30 transition-all flex items-center gap-2"
+      >
+        <ThemeIcon size={20} />
+        <span className="text-sm font-medium capitalize hidden sm:inline">{currentTheme}</span>
+      </button>
+      
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+          <div className="absolute right-0 top-full mt-2 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-white/20 p-2 z-50 min-w-[180px]">
+            {Object.keys(THEMES).map(theme => {
+              const Icon = THEME_ICONS[theme] || Palette;
+              return (
+                <button
+                  key={theme}
+                  onClick={() => {
+                    onThemeChange(theme);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
+                    currentTheme === theme
+                      ? 'bg-indigo-100 text-indigo-700'
+                      : 'text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  <Icon size={18} />
+                  <span className="font-medium capitalize">{theme}</span>
+                </button>
+              );
+            })}
           </div>
-        </div>
-
-        {/* DarkVeil Demo */}
-        <section className="relative rounded-2xl overflow-hidden" style={{ height: '600px' }}>
-          <DarkVeil
-            theme={selectedTheme}
-            speed={THEMES[selectedTheme]?.speed || 0.5}
-          />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="bg-slate-900/60 backdrop-blur-sm rounded-xl p-8 text-center">
-              <h3 className="text-3xl font-bold mb-2">DarkVeil Background</h3>
-              <p className="text-slate-300">Theme: {selectedTheme}</p>
-            </div>
-          </div>
-        </section>
-
-        {/* GradualBlur Demo */}
-        <section style={{ position: 'relative', height: '500px', overflow: 'hidden' }} className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl">
-          <div style={{ height: '100%', overflowY: 'auto', padding: '6rem 2rem' }}>
-            <div className="space-y-4 text-white">
-              <h3 className="text-2xl font-bold">GradualBlur Component</h3>
-              <p>This section demonstrates the gradual blur effect at the bottom.</p>
-              <p>Scroll down to see the blur effect in action.</p>
-              <div className="space-y-2 mt-8">
-                {Array.from({ length: 10 }).map((_, i) => (
-                  <div key={i} className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                    <p>Content item {i + 1} - Scroll to see the blur effect</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          <GradualBlur
-            target="parent"
-            position="bottom"
-            height="7rem"
-            strength={2}
-            divCount={5}
-            curve="bezier"
-            exponential
-            opacity={1}
-          />
-        </section>
-
-        {/* GlareHover Demo */}
-        <section className="flex items-center justify-center min-h-[400px]">
-          <GlareHover
-            width="100%"
-            height="400px"
-            background="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-            borderRadius="20px"
-            borderColor="#8b5cf6"
-            glareColor="#ffffff"
-            glareOpacity={0.3}
-            glareAngle={-30}
-            glareSize={300}
-            transitionDuration={800}
-            playOnce={false}
-            className="max-w-2xl"
-          >
-            <div className="text-center p-8">
-              <h2 style={{ fontSize: '3rem', fontWeight: '900', color: '#fff', margin: 0 }}>
-                Hover Me
-              </h2>
-              <p className="text-white/80 mt-4 text-lg">Move your mouse over this card to see the glare effect</p>
-            </div>
-          </GlareHover>
-        </section>
-      </div>
+        </>
+      )}
     </div>
   );
 };
 
 // --- Role Selector ---
-const RoleSelector = ({ onSelect, onShowDemo }) => (
-  <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
-    <div className="text-center mb-10 animate-in slide-in-from-top-10 fade-in duration-700">
-       <h1 className="text-4xl font-extrabold text-slate-900 mb-2 tracking-tight">Campus Eats</h1>
-       <p className="text-lg text-slate-500">Choose your portal to continue</p>
+const RoleSelector = ({ onSelect, currentTheme, onThemeChange }) => (
+  <div className="min-h-screen relative flex flex-col items-center justify-center p-4 overflow-hidden">
+    {/* DarkVeil Background */}
+    <div className="absolute inset-0 z-0">
+      <DarkVeil theme={currentTheme} />
     </div>
     
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl mb-6">
-       <button 
-         onClick={() => onSelect("student")}
-         className="group relative bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 hover:border-indigo-500 flex flex-col items-center text-center gap-4 overflow-hidden"
-       >
-         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity"/>
-         <div className="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-            <User size={40} />
-         </div>
-         <div>
-            <h3 className="text-xl font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">Student</h3>
-            <p className="text-sm text-slate-500 mt-2">Browse menu, place orders, and track your food history.</p>
-         </div>
-       </button>
+    {/* Overlay */}
+    <div className="absolute inset-0 bg-black/20 z-0" />
 
-       <button 
-         onClick={() => onSelect("staff")}
-         className="group relative bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 hover:border-orange-500 flex flex-col items-center text-center gap-4 overflow-hidden"
-       >
-         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity"/>
-         <div className="w-20 h-20 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-            <ChefHat size={40} />
-         </div>
-         <div>
-            <h3 className="text-xl font-bold text-slate-800 group-hover:text-orange-600 transition-colors">Canteen Staff</h3>
-            <p className="text-sm text-slate-500 mt-2">Manage incoming orders, update status, and view sales.</p>
-         </div>
-       </button>
+    {/* Theme Selector - Top Right */}
+    <div className="absolute top-4 right-4 z-20">
+      <ThemeSelector currentTheme={currentTheme} onThemeChange={onThemeChange} />
     </div>
 
-    <button
-      onClick={onShowDemo}
-      className="px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-xl font-medium hover:shadow-lg transition-all flex items-center gap-2"
-    >
-      <Palette size={20} />
-      View Component Demo
-    </button>
+    <div className="relative z-10">
+      <div className="text-center mb-10 animate-in slide-in-from-top-10 fade-in duration-700">
+         <h1 className="text-4xl font-extrabold text-white mb-2 tracking-tight drop-shadow-lg">Campus Eats</h1>
+         <p className="text-lg text-white/80">Choose your portal to continue</p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl">
+         <GlareHover
+           width="100%"
+           height="auto"
+           background="rgba(255,255,255,0.95)"
+           borderRadius="24px"
+           borderColor="rgba(99,102,241,0.3)"
+           glareColor="#6366f1"
+           glareOpacity={0.2}
+           glareAngle={-30}
+           glareSize={300}
+           transitionDuration={600}
+           className="cursor-pointer"
+           style={{ minHeight: '220px' }}
+         >
+           <button 
+             onClick={() => onSelect("student")}
+             className="w-full h-full p-8 flex flex-col items-center text-center gap-4"
+           >
+             <div className="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-2">
+                <User size={40} />
+             </div>
+             <div>
+                <h3 className="text-xl font-bold text-slate-800">Student</h3>
+                <p className="text-sm text-slate-500 mt-2">Browse menu, place orders, and track your food history.</p>
+             </div>
+           </button>
+         </GlareHover>
+
+         <GlareHover
+           width="100%"
+           height="auto"
+           background="rgba(255,255,255,0.95)"
+           borderRadius="24px"
+           borderColor="rgba(249,115,22,0.3)"
+           glareColor="#f97316"
+           glareOpacity={0.2}
+           glareAngle={-30}
+           glareSize={300}
+           transitionDuration={600}
+           className="cursor-pointer"
+           style={{ minHeight: '220px' }}
+         >
+           <button 
+             onClick={() => onSelect("staff")}
+             className="w-full h-full p-8 flex flex-col items-center text-center gap-4"
+           >
+             <div className="w-20 h-20 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mb-2">
+                <ChefHat size={40} />
+             </div>
+             <div>
+                <h3 className="text-xl font-bold text-slate-800">Canteen Staff</h3>
+                <p className="text-sm text-slate-500 mt-2">Manage incoming orders, update status, and view sales.</p>
+             </div>
+           </button>
+         </GlareHover>
+      </div>
+    </div>
   </div>
 );
 
 /* ================= MAIN CONTROLLER ================= */
 
 export default function App() {
-  const [step, setStep] = useState("role"); // role | auth | app | demo
+  const [step, setStep] = useState("role"); // role | auth | app
   const [role, setRole] = useState(null); // student | staff
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
+  
+  // Theme State - persisted in localStorage
+  const [currentTheme, setCurrentTheme] = useState(() => {
+    const saved = localStorage.getItem('campuseats-theme');
+    return saved || 'morning';
+  });
+
+  const handleThemeChange = (theme) => {
+    setCurrentTheme(theme);
+    localStorage.setItem('campuseats-theme', theme);
+  };
   
   // Data State
   const [menu, setMenu] = useState([]);
@@ -1159,12 +1176,14 @@ export default function App() {
   };
 
   /* --- RENDER --- */
-  if (step === "demo") {
-    return <ComponentDemo onBack={() => setStep("role")} />;
-  }
-
   if (step === "role") {
-    return <RoleSelector onSelect={handleRoleSelect} onShowDemo={() => setStep("demo")} />;
+    return (
+      <RoleSelector 
+        onSelect={handleRoleSelect} 
+        currentTheme={currentTheme}
+        onThemeChange={handleThemeChange}
+      />
+    );
   }
 
   if (step === "auth") {
@@ -1175,6 +1194,7 @@ export default function App() {
         onSignup={handleSignup}
         setStep={setStep}
         setRole={setRole}
+        currentTheme={currentTheme}
       />
     );
   }
@@ -1190,6 +1210,8 @@ export default function App() {
           userProfile={userProfile}
           updateUserProfile={updateUserProfile}
           logout={handleLogout}
+          currentTheme={currentTheme}
+          onThemeChange={handleThemeChange}
         />
       );
     } else {
@@ -1202,6 +1224,8 @@ export default function App() {
           onUpdateMenu={handleUpdateMenuItem}
           onDeleteMenu={handleDeleteMenuItem}
           logout={handleLogout}
+          currentTheme={currentTheme}
+          onThemeChange={handleThemeChange}
         />
       );
     }
