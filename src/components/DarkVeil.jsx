@@ -130,64 +130,14 @@ void main(){
 
 `;
 
-// Theme presets
+// Food-based theme presets (fresh, spice, harvest, coastal, grill, midnight)
 export const THEMES = {
-  default: {
-    hueShift: 0,
-    noiseIntensity: 0,
-    scanlineIntensity: 0,
-    speed: 0.5,
-    scanlineFrequency: 0,
-    warpAmount: 0
-  },
-  forest: {
-    hueShift: 120,
-    noiseIntensity: 0.05,
-    scanlineIntensity: 0.1,
-    speed: 0.3,
-    scanlineFrequency: 2.0,
-    warpAmount: 0.3
-  },
-  sunshine: {
-    hueShift: 40,
-    noiseIntensity: 0.03,
-    scanlineIntensity: 0.05,
-    speed: 0.7,
-    scanlineFrequency: 1.5,
-    warpAmount: 0.2
-  },
-  morning: {
-    hueShift: 200,
-    noiseIntensity: 0.02,
-    scanlineIntensity: 0.08,
-    speed: 0.4,
-    scanlineFrequency: 1.8,
-    warpAmount: 0.25
-  },
-  ocean: {
-    hueShift: 180,
-    noiseIntensity: 0.04,
-    scanlineIntensity: 0.12,
-    speed: 0.6,
-    scanlineFrequency: 2.2,
-    warpAmount: 0.35
-  },
-  sunset: {
-    hueShift: 15,
-    noiseIntensity: 0.06,
-    scanlineIntensity: 0.15,
-    speed: 0.5,
-    scanlineFrequency: 1.2,
-    warpAmount: 0.4
-  },
-  night: {
-    hueShift: 240,
-    noiseIntensity: 0.08,
-    scanlineIntensity: 0.2,
-    speed: 0.3,
-    scanlineFrequency: 3.0,
-    warpAmount: 0.5
-  }
+  fresh: { hueShift: 115, noiseIntensity: 0.04, scanlineIntensity: 0.08, speed: 0.35, scanlineFrequency: 1.8, warpAmount: 0.25 },
+  spice: { hueShift: 0, noiseIntensity: 0.05, scanlineIntensity: 0.1, speed: 0.5, scanlineFrequency: 1.5, warpAmount: 0.2 },
+  harvest: { hueShift: 35, noiseIntensity: 0.03, scanlineIntensity: 0.06, speed: 0.5, scanlineFrequency: 1.4, warpAmount: 0.18 },
+  coastal: { hueShift: 175, noiseIntensity: 0.04, scanlineIntensity: 0.1, speed: 0.5, scanlineFrequency: 2.0, warpAmount: 0.28 },
+  grill: { hueShift: 12, noiseIntensity: 0.05, scanlineIntensity: 0.1, speed: 0.55, scanlineFrequency: 1.3, warpAmount: 0.22 },
+  midnight: { hueShift: 235, noiseIntensity: 0.06, scanlineIntensity: 0.14, speed: 0.3, scanlineFrequency: 2.4, warpAmount: 0.35 }
 };
 
 export default function DarkVeil({
@@ -203,7 +153,7 @@ export default function DarkVeil({
   const ref = useRef(null);
 
   // Get theme values or use provided props
-  const themeConfig = THEMES[theme] || THEMES.default;
+  const themeConfig = THEMES[theme] || THEMES.fresh;
   const finalHueShift = hueShift !== undefined ? hueShift : themeConfig.hueShift;
   const finalNoiseIntensity = noiseIntensity !== undefined ? noiseIntensity : themeConfig.noiseIntensity;
   const finalScanlineIntensity = scanlineIntensity !== undefined ? scanlineIntensity : themeConfig.scanlineIntensity;
