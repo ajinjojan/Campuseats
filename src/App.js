@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
+import { createPortal } from "react-dom";
 import {
   Utensils, ShoppingBag, CreditCard,
   CheckCircle, User, LogOut,
@@ -81,54 +82,54 @@ const generateOrderId = () => `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
 
 const formatCurrency = (amount) => `₹${amount}`;
 
-// Theme-based color mapping for cards
+// Theme-based color mapping for cards (dark UI: black / darkest gray)
 const getThemeCardColors = (theme) => {
   const themeColors = {
     default: {
-      bg: 'bg-white/70',
-      border: 'border-white/20',
-      text: 'text-slate-800',
-      textSecondary: 'text-slate-500',
+      bg: 'bg-slate-950/90',
+      border: 'border-slate-700/40',
+      text: 'text-slate-100',
+      textSecondary: 'text-slate-400',
       accent: 'bg-indigo-500/20'
     },
     forest: {
-      bg: 'bg-green-50/80',
-      border: 'border-green-200/30',
-      text: 'text-green-900',
-      textSecondary: 'text-green-700',
+      bg: 'bg-slate-950/90',
+      border: 'border-slate-700/40',
+      text: 'text-slate-100',
+      textSecondary: 'text-slate-400',
       accent: 'bg-green-500/20'
     },
     sunshine: {
-      bg: 'bg-yellow-50/80',
-      border: 'border-yellow-200/30',
-      text: 'text-yellow-900',
-      textSecondary: 'text-yellow-700',
+      bg: 'bg-slate-950/90',
+      border: 'border-slate-700/40',
+      text: 'text-slate-100',
+      textSecondary: 'text-slate-400',
       accent: 'bg-yellow-500/20'
     },
     morning: {
-      bg: 'bg-blue-50/80',
-      border: 'border-blue-200/30',
-      text: 'text-blue-900',
-      textSecondary: 'text-blue-700',
+      bg: 'bg-slate-950/90',
+      border: 'border-slate-700/40',
+      text: 'text-slate-100',
+      textSecondary: 'text-slate-400',
       accent: 'bg-blue-500/20'
     },
     ocean: {
-      bg: 'bg-cyan-50/80',
-      border: 'border-cyan-200/30',
-      text: 'text-cyan-900',
-      textSecondary: 'text-cyan-700',
+      bg: 'bg-slate-950/90',
+      border: 'border-slate-700/40',
+      text: 'text-slate-100',
+      textSecondary: 'text-slate-400',
       accent: 'bg-cyan-500/20'
     },
     sunset: {
-      bg: 'bg-orange-50/80',
-      border: 'border-orange-200/30',
-      text: 'text-orange-900',
-      textSecondary: 'text-orange-700',
+      bg: 'bg-slate-950/90',
+      border: 'border-slate-700/40',
+      text: 'text-slate-100',
+      textSecondary: 'text-slate-400',
       accent: 'bg-orange-500/20'
     },
     night: {
-      bg: 'bg-slate-800/70',
-      border: 'border-slate-600/30',
+      bg: 'bg-slate-950/90',
+      border: 'border-slate-700/40',
       text: 'text-slate-100',
       textSecondary: 'text-slate-300',
       accent: 'bg-slate-500/20'
@@ -141,13 +142,13 @@ const getThemeCardColors = (theme) => {
 const getThemeNavColors = (theme) => {
   const themeNavColors = {
     default: {
-      headerText: 'text-slate-800',
-      headerSecondary: 'text-slate-700',
-      navActive: 'text-indigo-600',
+      headerText: 'text-slate-100',
+      headerSecondary: 'text-slate-400',
+      navActive: 'text-indigo-400',
       navActiveBg: 'bg-indigo-500/20',
-      navInactive: 'text-slate-500',
-      navHover: 'hover:text-slate-700',
-      border: 'border-white/30'
+      navInactive: 'text-slate-400',
+      navHover: 'hover:text-slate-200',
+      border: 'border-slate-600/40'
     },
     forest: {
       headerText: 'text-green-900',
@@ -450,25 +451,31 @@ const CardNav = ({
   return (
     <nav
       ref={navRef}
-      className="relative rounded-xl shadow-md overflow-hidden will-change-[height] transition-all duration-400"
+      className="relative rounded-xl shadow-md will-change-[height] transition-all duration-400"
       style={{
-        backgroundColor: `rgba(255, 255, 255, ${transparency})`,
+        backgroundColor: `rgba(15, 23, 42, ${Math.max(0.9, transparency)})`,
         backdropFilter: `blur(${blur}px)`,
         WebkitBackdropFilter: `blur(${blur}px)`,
         minHeight: '60px',
         maxHeight: isExpanded ? '420px' : '60px',
         overflow: 'hidden',
         transition: 'max-height 0.4s ease',
-        border: `1px solid rgba(255, 255, 255, 0.3)`
+        border: '1px solid rgba(71, 85, 105, 0.5)',
+        zIndex: 50,
+        position: 'relative'
       }}
     >
-      <div className="absolute inset-x-0 top-0 h-[60px] flex items-center justify-between p-2 pl-[1.1rem] z-[4]">
+      <div className="absolute inset-x-0 top-0 h-[60px] flex items-center justify-between p-2 pl-[1.1rem] z-[100]">
         <div
-          className={`hamburger-menu group h-full flex flex-col items-center justify-center cursor-pointer gap-[6px] order-2 md:order-none ${themeColors.headerText}`}
-          onClick={toggleMenu}
+          className={`hamburger-menu group h-full flex flex-col items-center justify-center cursor-pointer gap-[6px] order-2 md:order-none relative ${themeColors.headerText}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleMenu();
+          }}
           role="button"
           aria-label={isExpanded ? 'Close menu' : 'Open menu'}
           tabIndex={0}
+          style={{ zIndex: 101, pointerEvents: 'auto' }}
         >
           <div
             className={`hamburger-line w-[30px] h-[2px] bg-current transition-all duration-300 ease-linear ${
@@ -486,9 +493,9 @@ const CardNav = ({
           {LogoComponent}
         </div>
 
-        <div className="flex items-center gap-2 order-3">
+        <div className="flex items-center gap-2 order-3 relative" style={{ zIndex: 200 }}>
           <ThemeSelector currentTheme={currentTheme} onThemeChange={onThemeChange} />
-          <span className={`text-xs font-medium ${themeColors.headerSecondary} bg-white/50 backdrop-blur-sm px-2 py-1 rounded-full hidden md:block`}>
+          <span className={`text-xs font-medium ${themeColors.headerSecondary} bg-slate-800/80 backdrop-blur-sm px-2 py-1 rounded-full hidden md:block border border-slate-600/30`}>
             {userProfile?.name || "Student"}
           </span>
           <button 
@@ -501,9 +508,15 @@ const CardNav = ({
       </div>
 
       <div
-        className={`absolute left-0 right-0 top-[60px] bottom-0 p-2 flex flex-col items-stretch gap-2 justify-start z-[1] transition-all duration-400 ${
+        className={`absolute left-0 right-0 top-[60px] bottom-0 p-2 flex flex-col items-stretch gap-2 justify-start transition-all duration-400 ${
           isExpanded ? 'visible pointer-events-auto opacity-100' : 'invisible pointer-events-none opacity-0'
         } md:flex-row md:items-end md:gap-[12px]`}
+        style={{
+          zIndex: 110,
+          position: 'absolute',
+          width: '100%',
+          minHeight: '200px'
+        }}
         aria-hidden={!isExpanded}
       >
         {(items || []).slice(0, 3).map((item, idx) => (
@@ -511,8 +524,8 @@ const CardNav = ({
             key={`${item.label}-${idx}`}
             className="nav-card select-none relative flex flex-col gap-2 p-[12px_16px] rounded-[calc(0.75rem-0.2rem)] min-w-0 flex-[1_1_auto] h-auto min-h-[60px] md:h-full md:min-h-0 md:flex-[1_1_0%] transition-all duration-300 transform translate-y-0 opacity-100"
             style={{ 
-              backgroundColor: item.bgColor || 'rgba(255, 255, 255, 0.9)', 
-              color: item.textColor || themeColors.headerText.replace('text-', '')
+              backgroundColor: item.bgColor || 'rgba(30, 41, 59, 0.95)', 
+              color: item.textColor || '#e2e8f0'
             }}
           >
             <div className="nav-card-label font-normal tracking-[-0.5px] text-[18px] md:text-[22px]">
@@ -568,10 +581,10 @@ const PillNav = ({
   return (
     <div className="absolute bottom-0 left-0 right-0 z-[1000]">
       <nav
-        className={`w-full flex items-center justify-center box-border px-4 py-2 border-t ${themeColors.border}`}
+        className={`w-full flex items-center justify-center box-border px-4 py-2 border-t border-slate-700/50`}
         aria-label="Primary"
             style={{
-              backgroundColor: `rgba(255, 255, 255, ${transparency})`,
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
               backdropFilter: `blur(${blur}px)`,
               WebkitBackdropFilter: `blur(${blur}px)`
             }}
@@ -580,7 +593,7 @@ const PillNav = ({
           className="relative items-center rounded-full hidden md:flex"
           style={{
             height: '42px',
-            background: `rgba(255, 255, 255, ${transparency * 0.8})`,
+            background: 'rgba(30, 41, 59, 0.9)',
             padding: '3px',
             gap: '3px'
           }}
@@ -603,8 +616,8 @@ const PillNav = ({
                     }`}
                     style={{
                       background: isActive 
-                        ? `rgba(255, 255, 255, ${transparency * 0.6})` 
-                        : `rgba(255, 255, 255, ${transparency * 0.4})`
+                        ? 'rgba(51, 65, 85, 0.9)' 
+                        : 'rgba(30, 41, 59, 0.6)'
                     }}
                     onMouseEnter={() => handlePillHover(i, true)}
                     onMouseLeave={() => handlePillHover(i, false)}
@@ -650,34 +663,32 @@ const PillNav = ({
           onClick={toggleMobileMenu}
           aria-label="Toggle menu"
           aria-expanded={isMobileMenuOpen}
-          className="md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1 cursor-pointer p-0 relative"
+          className="md:hidden rounded-full border border-slate-600/40 flex flex-col items-center justify-center gap-1 cursor-pointer p-0 relative"
           style={{
             width: '42px',
             height: '42px',
-            background: `rgba(255, 255, 255, ${transparency})`
+            background: 'rgba(30, 41, 59, 0.9)'
           }}
         >
           <span
-            className={`hamburger-line w-4 h-0.5 rounded origin-center transition-all duration-300 ${
+            className={`hamburger-line w-4 h-0.5 rounded origin-center transition-all duration-300 bg-slate-400 ${
               isMobileMenuOpen ? 'rotate-45 translate-y-1' : ''
             }`}
-            style={{ background: themeColors.navInactive.replace('text-', '') }}
           />
           <span
-            className={`hamburger-line w-4 h-0.5 rounded origin-center transition-all duration-300 ${
+            className={`hamburger-line w-4 h-0.5 rounded origin-center transition-all duration-300 bg-slate-400 ${
               isMobileMenuOpen ? '-rotate-45 -translate-y-1' : ''
             }`}
-            style={{ background: themeColors.navInactive.replace('text-', '') }}
           />
         </button>
       </nav>
 
       <div
-        className={`md:hidden absolute bottom-[3.5em] left-4 right-4 rounded-[27px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-[998] origin-top transition-all duration-300 ${
+        className={`md:hidden absolute bottom-[3.5em] left-4 right-4 rounded-[27px] shadow-[0_8px_32px_rgba(0,0,0,0.4)] border border-slate-700/50 z-[998] origin-top transition-all duration-300 ${
           isMobileMenuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-2'
         }`}
         style={{
-          background: `rgba(255, 255, 255, ${transparency})`,
+          background: 'rgba(15, 23, 42, 0.98)',
           backdropFilter: `blur(${blur}px)`,
           WebkitBackdropFilter: `blur(${blur}px)`
         }}
@@ -691,8 +702,8 @@ const PillNav = ({
                 }`}
                 style={{
                   background: activeTab === item.id 
-                    ? `rgba(255, 255, 255, ${transparency * 0.6})` 
-                    : `rgba(255, 255, 255, ${transparency * 0.4})`
+                    ? 'rgba(51, 65, 85, 0.9)' 
+                    : 'rgba(30, 41, 59, 0.6)'
                 }}
                 onClick={() => {
                   onTabChange(item.id);
@@ -718,9 +729,9 @@ const PillNav = ({
 const GlareButton = ({ children, onClick, variant = "primary", className = "", disabled = false, type = "button" }) => {
   const variants = {
     primary: { bg: "linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)", glare: "#a5b4fc", text: "text-white" },
-    secondary: { bg: "rgba(255,255,255,0.9)", glare: "#6366f1", text: "text-slate-700 border border-slate-200" },
-    danger: { bg: "linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)", glare: "#f87171", text: "text-red-600" },
-    ghost: { bg: "transparent", glare: "#94a3b8", text: "text-slate-600" },
+    secondary: { bg: "rgba(15, 23, 42, 0.95)", glare: "#475569", text: "text-slate-200 border border-slate-600/50" },
+    danger: { bg: "linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%)", glare: "#f87171", text: "text-red-300" },
+    ghost: { bg: "transparent", glare: "#64748b", text: "text-slate-300" },
     success: { bg: "linear-gradient(135deg, #059669 0%, #10b981 100%)", glare: "#6ee7b7", text: "text-white" }
   };
   const v = variants[variant] || variants.primary;
@@ -757,11 +768,11 @@ const Button = ({ children, onClick, variant = "primary", className = "", disabl
   if (noGlare) {
     const base = "px-4 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 disabled:active:scale-100";
     const variants = {
-      primary: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200",
-      secondary: "bg-white/90 backdrop-blur-sm text-slate-700 border border-slate-200 hover:bg-white shadow-sm",
-      danger: "bg-red-50 text-red-600 hover:bg-red-100",
-      ghost: "text-slate-600 hover:bg-slate-100 bg-transparent",
-      success: "bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-200"
+      primary: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-900/50",
+      secondary: "bg-slate-900/90 backdrop-blur-sm text-slate-200 border border-slate-600/50 hover:bg-slate-800 shadow-sm",
+      danger: "bg-red-950/80 text-red-300 hover:bg-red-900/80 border border-red-900/50",
+      ghost: "text-slate-300 hover:bg-slate-800/80 bg-transparent",
+      success: "bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-900/50"
     };
     return (
       <button type={type} disabled={disabled} onClick={onClick} className={`${base} ${variants[variant]} ${className}`}>
@@ -774,18 +785,18 @@ const Button = ({ children, onClick, variant = "primary", className = "", disabl
 
 const Input = ({ label, ...props }) => (
   <div className="flex flex-col gap-1.5 w-full">
-    {label && <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">{label}</label>}
+    {label && <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">{label}</label>}
     <input
-      className="w-full px-4 py-3 rounded-xl border border-white/30 bg-white/70 backdrop-blur-sm focus:bg-white/90 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+      className="w-full px-4 py-3 rounded-xl border border-slate-600/40 bg-slate-900/80 backdrop-blur-sm text-slate-100 placeholder:text-slate-500 focus:bg-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-slate-500 outline-none transition-all"
       {...props}
     />
   </div>
 );
-const Card = ({ children, className = "", transparency = 0.4 }) => (
+const Card = ({ children, className = "", transparency = 0.85 }) => (
   <div
-    className={`backdrop-blur-lg border border-white/20 p-4 rounded-2xl shadow-lg ${className}`}
+    className={`backdrop-blur-lg border border-slate-700/40 p-4 rounded-2xl shadow-lg ${className}`}
     style={{
-      backgroundColor: `rgba(255, 255, 255, ${transparency})`,
+      backgroundColor: `rgba(15, 23, 42, ${transparency})`,
     }}
   >
     {children}
@@ -841,30 +852,30 @@ const AuthScreen = ({ role, onLogin, onSignup, setStep, setRole, currentTheme })
 
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm text-white mb-4 shadow-xl">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-900/60 backdrop-blur-sm text-slate-200 mb-4 shadow-xl border border-slate-700/40">
             <Utensils size={32} />
           </div>
           <h1 className="text-3xl font-bold text-white drop-shadow-lg">Campus Eats</h1>
-          <p className="text-white/80 mt-2">Ordering food made simple</p>
+          <p className="text-slate-300 mt-2">Ordering food made simple</p>
         </div>
 
-        <Card className="p-6 md:p-8 bg-white/70 backdrop-blur-xl">
-          <div className="flex gap-2 p-1 bg-white/50 rounded-xl mb-6">
+        <Card className="p-6 md:p-8">
+          <div className="flex gap-2 p-1 bg-slate-800/80 rounded-xl mb-6 border border-slate-700/40">
             <button
               onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${isLogin ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${isLogin ? "bg-slate-700 text-indigo-300 shadow-sm" : "text-slate-400 hover:text-slate-300"}`}
             >
               Log In
             </button>
             <button
               onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${!isLogin ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${!isLogin ? "bg-slate-700 text-indigo-300 shadow-sm" : "text-slate-400 hover:text-slate-300"}`}
             >
               Sign Up
             </button>
           </div>
 
-          <h2 className="text-xl font-semibold mb-6 text-slate-800">
+          <h2 className="text-xl font-semibold mb-6 text-slate-100">
             {isLogin ? `Welcome back, ${role === "student" ? "Student" : "Staff"}!` : `Create ${role} Account`}
           </h2>
 
@@ -893,14 +904,14 @@ const AuthScreen = ({ role, onLogin, onSignup, setStep, setRole, currentTheme })
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            {error && <div className="p-3 rounded-lg bg-red-500/20 backdrop-blur-sm text-red-700 text-sm flex items-center gap-2"><ArrowRight size={14}/> {error}</div>}
+            {error && <div className="p-3 rounded-lg bg-red-950/60 backdrop-blur-sm text-red-300 text-sm flex items-center gap-2 border border-red-900/50"><ArrowRight size={14}/> {error}</div>}
 
             <Button disabled={loading} type="submit" className="w-full">
               {loading ? "Processing..." : (isLogin ? "Log In" : "Create Account")}
             </Button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-white/30">
+          <div className="mt-6 pt-6 border-t border-slate-700/50">
              <Button variant="secondary" onClick={handleGoogle} className="w-full">
                 {isLogin ? "Log in with Google" : "Sign up with Google"}
              </Button>
@@ -909,7 +920,7 @@ const AuthScreen = ({ role, onLogin, onSignup, setStep, setRole, currentTheme })
 
         <button
           onClick={() => { setStep("role"); setRole(null); }}
-          className="w-full mt-6 text-sm text-white/80 hover:text-white font-medium"
+          className="w-full mt-6 text-sm text-slate-400 hover:text-slate-200 font-medium"
         >
           ← Change Role
         </button>
@@ -998,11 +1009,11 @@ const StudentApp = ({ menu, orders, addToOrder, user, userProfile, updateUserPro
 
   return (
     <div className="h-screen flex flex-col overflow-hidden relative">
-      {/* DarkVeil Background */}
-      <div className="absolute inset-0 z-0">
+      {/* DarkVeil Background - pointer-events: none so they never block header clicks */}
+      <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
         <DarkVeil theme={currentTheme} />
       </div>
-      <div className="absolute inset-0 bg-black/10 z-0" />
+      <div className="absolute inset-0 bg-black/10 z-0 pointer-events-none" aria-hidden="true" />
 
       {/* Header - CardNav Style */}
       {(() => {
@@ -1048,8 +1059,7 @@ const StudentApp = ({ menu, orders, addToOrder, user, userProfile, updateUserPro
 
         return (
           <div
-  className="sticky top-4 z-30 px-4 pointer-events-auto"
-  style={{ isolation: "isolate" }}
+  className="sticky top-4 z-50 px-4 pointer-events-auto"
 >
             <CardNav
               logo={LogoComponent}
@@ -1086,7 +1096,7 @@ const StudentApp = ({ menu, orders, addToOrder, user, userProfile, updateUserPro
                     <input 
                       type="text" 
                       placeholder="Search food..." 
-                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/70 backdrop-blur-sm border border-white/30 focus:ring-2 focus:ring-indigo-500 outline-none"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-900/80 backdrop-blur-sm border border-slate-600/40 text-slate-100 placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 outline-none"
                       value={searchTerm}
                       onChange={e => setSearchTerm(e.target.value)}
                     />
@@ -1100,10 +1110,10 @@ const StudentApp = ({ menu, orders, addToOrder, user, userProfile, updateUserPro
                         style={{ borderWidth: '1px' }}
                       >
                         <div className="flex justify-between items-start">
-                          <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${item.color || 'bg-white/50'}`}>
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${item.color || 'bg-slate-800/80'}`}>
                             {item.image}
                           </div>
-                          <span className={`text-sm font-semibold ${themeColors.text} bg-white/50 px-2 py-1 rounded-md`}>
+                          <span className={`text-sm font-semibold ${themeColors.text} bg-slate-800/80 px-2 py-1 rounded-md border border-slate-600/30`}>
                             {formatCurrency(item.price)}
                           </span>
                         </div>
@@ -1177,7 +1187,7 @@ const StudentApp = ({ menu, orders, addToOrder, user, userProfile, updateUserPro
             <h2 className="text-2xl font-bold text-white drop-shadow-lg mb-6">Your Cart</h2>
             
             {cart.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-white/70 space-y-4">
+              <div className="flex-1 flex flex-col items-center justify-center text-slate-400 space-y-4">
                 <ShoppingBag size={64} strokeWidth={1} />
                 <p>Your cart is empty</p>
                 <Button variant="ghost" onClick={() => setActiveTab("menu")} noGlare>Browse Menu</Button>
@@ -1185,29 +1195,29 @@ const StudentApp = ({ menu, orders, addToOrder, user, userProfile, updateUserPro
             ) : (
               <div className="space-y-4 flex-1">
                 {cart.map(item => (
-                  <div key={item.id} className="bg-white/70 backdrop-blur-md p-4 rounded-xl border border-white/30 flex items-center gap-4 shadow-lg">
+                  <div key={item.id} className="bg-slate-900/90 backdrop-blur-md p-4 rounded-xl border border-slate-700/40 flex items-center gap-4 shadow-lg">
                     <div className="text-2xl">{item.image}</div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-slate-800">{item.name}</h4>
-                      <p className="text-sm text-slate-500">{formatCurrency(item.price)}</p>
+                      <h4 className="font-semibold text-slate-100">{item.name}</h4>
+                      <p className="text-sm text-slate-400">{formatCurrency(item.price)}</p>
                     </div>
-                    <div className="flex items-center gap-3 bg-white/50 rounded-lg p-1">
-                      <button onClick={() => updateQty(item.id, -1)} className="p-1 hover:bg-white rounded-md transition-colors"><Minus size={14}/></button>
-                      <span className="text-sm font-medium w-4 text-center">{item.qty}</span>
-                      <button onClick={() => updateQty(item.id, 1)} className="p-1 hover:bg-white rounded-md transition-colors"><Plus size={14}/></button>
+                    <div className="flex items-center gap-3 bg-slate-800/80 rounded-lg p-1 border border-slate-600/30">
+                      <button onClick={() => updateQty(item.id, -1)} className="p-1 hover:bg-slate-700 rounded-md transition-colors text-slate-300"><Minus size={14}/></button>
+                      <span className="text-sm font-medium w-4 text-center text-slate-200">{item.qty}</span>
+                      <button onClick={() => updateQty(item.id, 1)} className="p-1 hover:bg-slate-700 rounded-md transition-colors text-slate-300"><Plus size={14}/></button>
                     </div>
-                    <button onClick={() => removeItem(item.id)} className="text-slate-400 hover:text-red-500 p-2">
+                    <button onClick={() => removeItem(item.id)} className="text-slate-400 hover:text-red-400 p-2">
                       <Trash2 size={18} />
                     </button>
                   </div>
                 ))}
                 
                 <Card className="mt-8 p-6 space-y-4">
-                  <div className="flex justify-between text-slate-600">
+                  <div className="flex justify-between text-slate-400">
                     <span>Subtotal</span>
                     <span>{formatCurrency(cartTotal)}</span>
                   </div>
-                  <div className="flex justify-between font-bold text-xl text-slate-900 pt-4 border-t border-white/30">
+                  <div className="flex justify-between font-bold text-xl text-slate-100 pt-4 border-t border-slate-700/50">
                     <span>Total</span>
                     <span>{formatCurrency(cartTotal)}</span>
                   </div>
@@ -1232,34 +1242,34 @@ const StudentApp = ({ menu, orders, addToOrder, user, userProfile, updateUserPro
                 return (
                   <Card key={order.orderId} className={`overflow-hidden border-l-4 ${order.orderStatus === 'Served' ? 'border-l-green-500 opacity-80' : 'border-l-indigo-500'}`}>
                     {order.orderStatus === "Placed" && (
-                      <div className="bg-indigo-500/20 backdrop-blur-sm -m-4 mb-4 p-6 flex flex-col items-center justify-center text-center border-b border-indigo-200/30">
-                        <div className="bg-white/80 backdrop-blur-sm p-2 rounded-xl mb-3 shadow-lg">
-                          <QrCode size={80} className="text-slate-800"/>
+                      <div className="bg-indigo-500/20 backdrop-blur-sm -m-4 mb-4 p-6 flex flex-col items-center justify-center text-center border-b border-indigo-500/30">
+                        <div className="bg-slate-900/90 backdrop-blur-sm p-2 rounded-xl mb-3 shadow-lg border border-slate-700/40">
+                          <QrCode size={80} className="text-slate-200"/>
                         </div>
                         <p className="text-xs font-bold text-indigo-300 uppercase tracking-widest mb-1">Pickup Code</p>
-                        <h3 className="text-4xl font-black text-indigo-600 tracking-wider font-mono">{pickupCode}</h3>
-                        <p className="text-xs text-slate-600 mt-2">Show this code to the staff to collect your order</p>
+                        <h3 className="text-4xl font-black text-indigo-400 tracking-wider font-mono">{pickupCode}</h3>
+                        <p className="text-xs text-slate-400 mt-2">Show this code to the staff to collect your order</p>
                       </div>
                     )}
                     
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-slate-800">Order #{pickupCode}</h3>
+                          <h3 className="font-bold text-slate-100">Order #{pickupCode}</h3>
                           <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold ${
-                            order.orderStatus === "Served" ? "bg-green-500/20 text-green-700" : "bg-blue-500/20 text-blue-700"
+                            order.orderStatus === "Served" ? "bg-green-500/30 text-green-300" : "bg-blue-500/30 text-blue-300"
                           }`}>
                             {order.orderStatus}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-500 mt-1">{new Date(order.createdAt).toLocaleString()}</p>
+                        <p className="text-xs text-slate-400 mt-1">{new Date(order.createdAt).toLocaleString()}</p>
                       </div>
-                      <span className="font-bold text-slate-900">{formatCurrency(order.totalAmount)}</span>
+                      <span className="font-bold text-slate-100">{formatCurrency(order.totalAmount)}</span>
                     </div>
                     
                     <div className="space-y-2">
                       {order.items.map((item, idx) => (
-                        <div key={idx} className="flex justify-between text-sm text-slate-600 border-b border-white/20 last:border-0 pb-2 last:pb-0">
+                        <div key={idx} className="flex justify-between text-sm text-slate-400 border-b border-slate-700/50 last:border-0 pb-2 last:pb-0">
                           <span>{item.qty}x {item.name}</span>
                           <span>{formatCurrency(item.price * item.qty)}</span>
                         </div>
@@ -1267,8 +1277,8 @@ const StudentApp = ({ menu, orders, addToOrder, user, userProfile, updateUserPro
                     </div>
                     
                     {order.orderStatus === "Served" && (
-                      <div className="mt-4 pt-3 border-t border-white/20 text-center">
-                        <p className="text-xs text-green-600 font-medium flex items-center justify-center gap-1">
+                      <div className="mt-4 pt-3 border-t border-slate-700/50 text-center">
+                        <p className="text-xs text-green-400 font-medium flex items-center justify-center gap-1">
                           <CheckCircle size={12}/> Order Picked Up
                         </p>
                       </div>
@@ -1278,7 +1288,7 @@ const StudentApp = ({ menu, orders, addToOrder, user, userProfile, updateUserPro
               })}
               
               {orders.filter(o => o.studentUid === user.uid).length === 0 && (
-                 <div className="text-center text-white/60 py-10">No orders yet</div>
+                 <div className="text-center text-slate-400 py-10">No orders yet</div>
               )}
             </div>
           </div>
@@ -1290,7 +1300,7 @@ const StudentApp = ({ menu, orders, addToOrder, user, userProfile, updateUserPro
             <h2 className="text-2xl font-bold text-white drop-shadow-lg mb-6">My Profile</h2>
             <Card className="space-y-4">
               <div className="flex justify-center mb-4">
-                 <div className="w-20 h-20 bg-indigo-500/30 backdrop-blur-sm text-indigo-600 rounded-full flex items-center justify-center text-2xl font-bold">
+                 <div className="w-20 h-20 bg-slate-800/80 backdrop-blur-sm text-indigo-400 rounded-full flex items-center justify-center text-2xl font-bold border border-slate-700/40">
                     {profileForm.name ? profileForm.name[0].toUpperCase() : <User />}
                  </div>
               </div>
@@ -1415,12 +1425,12 @@ const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMen
       </div>
       <div className="fixed inset-0 bg-black/20 z-0" />
 
-      <header className="relative z-10 text-white px-6 py-4 flex justify-between items-center shadow-md sticky top-0 bg-white/10 backdrop-blur-md border-b border-white/20">
+      <header className="relative z-10 text-slate-200 px-6 py-4 flex justify-between items-center shadow-md sticky top-0 bg-slate-950/95 backdrop-blur-md border-b border-slate-700/50">
         <div className="flex items-center gap-3">
           <ChefHat className="text-orange-400" />
           <div>
              <h1 className="font-bold text-lg leading-none">Kitchen Dashboard</h1>
-             <p className="text-xs text-white/60">Manage orders efficiently</p>
+             <p className="text-xs text-slate-400">Manage orders efficiently</p>
           </div>
         </div>
         
@@ -1428,17 +1438,17 @@ const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMen
            <ThemeSelector currentTheme={currentTheme} onThemeChange={onThemeChange} />
            <button 
              onClick={() => setActiveTab("dashboard")} 
-             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'dashboard' ? 'bg-orange-500 text-white' : 'text-white/70 hover:text-white'}`}
+             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'dashboard' ? 'bg-orange-500 text-white' : 'text-slate-400 hover:text-slate-200'}`}
            >
              Orders
            </button>
            <button 
              onClick={() => setActiveTab("menu")} 
-             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'menu' ? 'bg-orange-500 text-white' : 'text-white/70 hover:text-white'}`}
+             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'menu' ? 'bg-orange-500 text-white' : 'text-slate-400 hover:text-slate-200'}`}
            >
              Menu
            </button>
-           <button onClick={logout} className="ml-4 p-2 bg-white/10 rounded-lg hover:bg-white/20 text-white/70 hover:text-white transition-colors">
+           <button onClick={logout} className="ml-4 p-2 bg-slate-800/80 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors border border-slate-700/40">
              <LogOut size={18}/>
            </button>
         </div>
@@ -1452,22 +1462,22 @@ const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMen
               <Card className="flex items-center gap-4 border-l-4 border-l-blue-500">
                  <div className="p-3 bg-blue-500/20 text-blue-400 rounded-full"><Clock/></div>
                  <div>
-                    <p className="text-sm text-slate-600 font-medium">Pending Orders</p>
-                    <p className="text-2xl font-bold text-slate-800">{stats.pending}</p>
+                    <p className="text-sm text-slate-400 font-medium">Pending Orders</p>
+                    <p className="text-2xl font-bold text-slate-100">{stats.pending}</p>
                  </div>
               </Card>
               <Card className="flex items-center gap-4 border-l-4 border-l-green-500">
-                 <div className="p-3 bg-green-500/20 text-green-500 rounded-full"><CheckCircle/></div>
+                 <div className="p-3 bg-green-500/20 text-green-400 rounded-full"><CheckCircle/></div>
                  <div>
-                    <p className="text-sm text-slate-600 font-medium">Completed</p>
-                    <p className="text-2xl font-bold text-slate-800">{stats.served}</p>
+                    <p className="text-sm text-slate-400 font-medium">Completed</p>
+                    <p className="text-2xl font-bold text-slate-100">{stats.served}</p>
                  </div>
               </Card>
               <Card className="flex items-center gap-4 border-l-4 border-l-indigo-500">
-                 <div className="p-3 bg-indigo-500/20 text-indigo-500 rounded-full"><CreditCard/></div>
+                 <div className="p-3 bg-indigo-500/20 text-indigo-400 rounded-full"><CreditCard/></div>
                  <div>
-                    <p className="text-sm text-slate-600 font-medium">Total Revenue</p>
-                    <p className="text-2xl font-bold text-slate-800">{formatCurrency(stats.revenue)}</p>
+                    <p className="text-sm text-slate-400 font-medium">Total Revenue</p>
+                    <p className="text-2xl font-bold text-slate-100">{formatCurrency(stats.revenue)}</p>
                  </div>
               </Card>
             </div>
@@ -1480,8 +1490,8 @@ const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMen
                   onClick={() => setFilter(f)}
                   className={`px-5 py-2 rounded-full font-medium text-sm transition-all whitespace-nowrap ${
                     filter === f 
-                    ? "bg-white/90 text-slate-800 shadow-lg backdrop-blur-sm" 
-                    : "bg-white/30 backdrop-blur-sm text-white hover:bg-white/50"
+                    ? "bg-slate-700 text-slate-100 shadow-lg backdrop-blur-sm border border-slate-600/50" 
+                    : "bg-slate-800/60 backdrop-blur-sm text-slate-400 hover:bg-slate-700/80 hover:text-slate-200 border border-slate-700/40"
                   }`}
                 >
                   {f === "Placed" ? "Pending" : f}
@@ -1493,17 +1503,17 @@ const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMen
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredOrders.map(order => (
                 <Card key={order.orderId} className={`flex flex-col h-full hover:shadow-xl transition-all ${order.orderStatus === "Served" ? "opacity-75" : ""}`}>
-                  <div className="flex justify-between items-start mb-4 pb-4 border-b border-white/20">
+                  <div className="flex justify-between items-start mb-4 pb-4 border-b border-slate-700/50">
                      <div>
                         {/* HIDE ORDER ID from Staff to force verification */}
                         <div className="flex items-center gap-2 mb-1">
                           <User size={16} className="text-slate-400"/>
-                          <h3 className="font-bold text-lg text-slate-800">{order.studentName}</h3>
+                          <h3 className="font-bold text-lg text-slate-100">{order.studentName}</h3>
                         </div>
-                        <p className="text-xs text-slate-500">{new Date(order.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                        <p className="text-xs text-slate-400">{new Date(order.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
                      </div>
                      <div className="text-right">
-                        <p className="font-bold text-slate-900 bg-white/50 px-2 py-1 rounded">{formatCurrency(order.totalAmount)}</p>
+                        <p className="font-bold text-slate-100 bg-slate-800/80 px-2 py-1 rounded border border-slate-600/30">{formatCurrency(order.totalAmount)}</p>
                      </div>
                   </div>
 
@@ -1511,8 +1521,8 @@ const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMen
                      {order.items.map((item, i) => (
                        <div key={i} className="flex justify-between items-center text-sm">
                           <div className="flex items-center gap-2">
-                             <span className="bg-white/50 text-slate-700 font-bold px-2 py-0.5 rounded text-xs">{item.qty}x</span>
-                             <span className="text-slate-700">{item.name}</span>
+                             <span className="bg-slate-800/80 text-slate-300 font-bold px-2 py-0.5 rounded text-xs border border-slate-600/30">{item.qty}x</span>
+                             <span className="text-slate-300">{item.name}</span>
                           </div>
                        </div>
                      ))}
@@ -1529,7 +1539,7 @@ const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMen
                        Verify & Serve <QrCode size={18}/>
                     </Button>
                   ) : (
-                    <div className="mt-auto text-center py-2 bg-green-500/20 text-green-700 rounded-lg font-medium text-sm flex items-center justify-center gap-2">
+                    <div className="mt-auto text-center py-2 bg-green-500/20 text-green-400 rounded-lg font-medium text-sm flex items-center justify-center gap-2 border border-green-500/30">
                        <CheckCircle size={16}/> Served
                     </div>
                   )}
@@ -1537,7 +1547,7 @@ const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMen
               ))}
               
               {filteredOrders.length === 0 && (
-                 <div className="col-span-full flex flex-col items-center justify-center py-20 text-white/50">
+                 <div className="col-span-full flex flex-col items-center justify-center py-20 text-slate-400">
                     <Coffee size={48} className="mb-4 opacity-20"/>
                     <p>No orders found for this filter.</p>
                  </div>
@@ -1563,20 +1573,20 @@ const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMen
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                {menu.map(item => (
                  <Card key={item.id} className="flex items-start gap-4">
-                    <div className="w-16 h-16 bg-white/50 rounded-lg flex items-center justify-center text-3xl">
+                    <div className="w-16 h-16 bg-slate-800/80 rounded-lg flex items-center justify-center text-3xl border border-slate-700/40">
                       {item.image}
                     </div>
                     <div className="flex-1">
                       <div className="flex justify-between">
-                        <h3 className="font-bold text-slate-800">{item.name}</h3>
-                        <span className="font-medium text-slate-600">{formatCurrency(item.price)}</span>
+                        <h3 className="font-bold text-slate-100">{item.name}</h3>
+                        <span className="font-medium text-slate-400">{formatCurrency(item.price)}</span>
                       </div>
                       <p className="text-sm text-slate-500 mb-2">{item.category}</p>
                       <div className="flex gap-2 mt-2">
-                        <button onClick={() => openEditMenu(item)} className="p-1.5 text-blue-600 hover:bg-blue-500/20 rounded-lg transition-colors">
+                        <button onClick={() => openEditMenu(item)} className="p-1.5 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors">
                           <Edit size={16}/>
                         </button>
-                        <button onClick={() => onDeleteMenu(item.docId)} className="p-1.5 text-red-600 hover:bg-red-500/20 rounded-lg transition-colors">
+                        <button onClick={() => onDeleteMenu(item.docId)} className="p-1.5 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors">
                           <Trash2 size={16}/>
                         </button>
                       </div>
@@ -1591,13 +1601,13 @@ const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMen
       {/* VERIFICATION MODAL */}
       {verifyModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white/90 backdrop-blur-xl rounded-2xl w-full max-w-sm p-6 shadow-2xl animate-in fade-in zoom-in-95 border border-white/30">
+          <div className="bg-slate-950/98 backdrop-blur-xl rounded-2xl w-full max-w-sm p-6 shadow-2xl animate-in fade-in zoom-in-95 border border-slate-700/50">
              <div className="text-center mb-6">
-               <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-600">
+               <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-400 border border-slate-700/40">
                  <QrCode size={32}/>
                </div>
-               <h3 className="text-xl font-bold text-slate-900">Verify Order</h3>
-               <p className="text-sm text-slate-500 mt-2">Enter the 4-digit code shown on the student's device.</p>
+               <h3 className="text-xl font-bold text-slate-100">Verify Order</h3>
+               <p className="text-sm text-slate-400 mt-2">Enter the 4-digit code shown on the student's device.</p>
              </div>
              
              <input
@@ -1605,7 +1615,7 @@ const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMen
                type="text" 
                maxLength={4}
                placeholder="0000"
-               className="w-full text-center text-3xl tracking-[1em] font-mono font-bold border-b-2 border-slate-200 focus:border-indigo-600 outline-none py-4 mb-6 bg-transparent"
+               className="w-full text-center text-3xl tracking-[1em] font-mono font-bold border-b-2 border-slate-600 focus:border-indigo-500 outline-none py-4 mb-6 bg-transparent text-slate-100 placeholder:text-slate-500"
                value={verificationCode}
                onChange={e => setVerificationCode(e.target.value)}
              />
@@ -1621,10 +1631,10 @@ const StaffApp = ({ orders, updateOrder, logout, menu, onUpdateMenu, onDeleteMen
       {/* MENU EDIT MODAL */}
       {isEditingMenu && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white/90 backdrop-blur-xl rounded-2xl w-full max-w-md p-6 shadow-2xl overflow-y-auto max-h-[90vh] border border-white/30">
+          <div className="bg-slate-950/98 backdrop-blur-xl rounded-2xl w-full max-w-md p-6 shadow-2xl overflow-y-auto max-h-[90vh] border border-slate-700/50">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-slate-900">{editingItemId ? "Edit Item" : "New Item"}</h3>
-              <button onClick={() => setIsEditingMenu(false)} className="text-slate-400 hover:text-slate-600"><X/></button>
+              <h3 className="text-xl font-bold text-slate-100">{editingItemId ? "Edit Item" : "New Item"}</h3>
+              <button onClick={() => setIsEditingMenu(false)} className="text-slate-400 hover:text-slate-200"><X/></button>
             </div>
             
             <div className="space-y-4">
@@ -1654,46 +1664,58 @@ const ThemeSelector = ({ currentTheme, onThemeChange, variant = "dark" }) => {
   const ThemeIcon = THEME_ICONS[currentTheme] || Palette;
 
   const buttonClass = variant === "dark" 
-    ? "p-2 bg-white/20 backdrop-blur-sm rounded-lg text-white hover:bg-white/30 transition-all flex items-center gap-2"
-    : "p-2 bg-slate-800/80 backdrop-blur-sm rounded-lg text-white hover:bg-slate-800 transition-all flex items-center gap-2";
+    ? "p-2 bg-slate-800/80 backdrop-blur-sm rounded-lg text-slate-200 hover:bg-slate-700 transition-all flex items-center gap-2 border border-slate-600/40"
+    : "p-2 bg-slate-900/90 backdrop-blur-sm rounded-lg text-slate-200 hover:bg-slate-800 transition-all flex items-center gap-2 border border-slate-600/40";
+
+  const dropdown = isOpen && createPortal(
+    <>
+      <div 
+        className="fixed inset-0 z-[9998]" 
+        style={{ background: 'transparent' }}
+        onClick={() => setIsOpen(false)} 
+        aria-hidden="true"
+      />
+      <div
+        className="fixed right-4 top-[72px] bg-slate-950/98 backdrop-blur-md rounded-xl shadow-xl border border-slate-700/50 p-2 z-[9999] min-w-[180px]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {Object.keys(THEMES).map(theme => {
+          const Icon = THEME_ICONS[theme] || Palette;
+          return (
+            <button
+              key={theme}
+              type="button"
+              onClick={() => {
+                onThemeChange(theme);
+                setIsOpen(false);
+              }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-left ${
+                    currentTheme === theme
+                      ? 'bg-indigo-500/30 text-indigo-200'
+                      : 'text-slate-300 hover:bg-slate-800'
+                  }`}
+            >
+              <Icon size={18} />
+              <span className="font-medium capitalize">{theme}</span>
+            </button>
+          );
+        })}
+      </div>
+    </>,
+    document.body
+  );
 
   return (
     <div className="relative">
-      <button onClick={() => setIsOpen(!isOpen)} className={buttonClass}>
+      <button 
+        type="button"
+        onClick={() => setIsOpen(!isOpen)} 
+        className={buttonClass}
+      >
         <ThemeIcon size={18} />
         <span className="text-xs font-medium capitalize hidden sm:inline">{currentTheme}</span>
       </button>
-      
-      {isOpen && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div
-          className="fixed right-4 top-[72px] bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-white/20 p-2 z-[1000] min-w-[180px]"
-        >
-
-            {Object.keys(THEMES).map(theme => {
-              const Icon = THEME_ICONS[theme] || Palette;
-              return (
-                <button
-                  key={theme}
-                  onClick={() => {
-                    onThemeChange(theme);
-                    setIsOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
-                    currentTheme === theme
-                      ? 'bg-indigo-100 text-indigo-700'
-                      : 'text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  <Icon size={18} />
-                  <span className="font-medium capitalize">{theme}</span>
-                </button>
-              );
-            })}
-          </div>
-        </>
-      )}
+      {dropdown}
     </div>
   );
 };
@@ -1717,18 +1739,18 @@ const RoleSelector = ({ onSelect, currentTheme, onThemeChange }) => (
     <div className="relative z-10">
       <div className="text-center mb-10 animate-in slide-in-from-top-10 fade-in duration-700">
          <h1 className="text-4xl font-extrabold text-white mb-2 tracking-tight drop-shadow-lg">Campus Eats</h1>
-         <p className="text-lg text-white/80">Choose your portal to continue</p>
+         <p className="text-lg text-slate-300">Choose your portal to continue</p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl">
          <GlareHover
            width="100%"
            height="auto"
-           background="rgba(255,255,255,0.7)"
+           background="rgba(15,23,42,0.95)"
            borderRadius="24px"
-           borderColor="rgba(99,102,241,0.3)"
+           borderColor="rgba(99,102,241,0.4)"
            glareColor="#6366f1"
-           glareOpacity={0.3}
+           glareOpacity={0.2}
            glareAngle={-30}
            glareSize={300}
            transitionDuration={600}
@@ -1739,12 +1761,12 @@ const RoleSelector = ({ onSelect, currentTheme, onThemeChange }) => (
              onClick={() => onSelect("student")}
              className="w-full h-full p-8 flex flex-col items-center text-center gap-4"
            >
-             <div className="w-20 h-20 bg-indigo-500/20 backdrop-blur-sm text-indigo-600 rounded-2xl flex items-center justify-center mb-2">
+             <div className="w-20 h-20 bg-slate-800/80 backdrop-blur-sm text-indigo-400 rounded-2xl flex items-center justify-center mb-2 border border-slate-700/40">
                 <User size={40} />
              </div>
              <div>
-                <h3 className="text-xl font-bold text-slate-800">Student</h3>
-                <p className="text-sm text-slate-600 mt-2">Browse menu, place orders, and track your food history.</p>
+                <h3 className="text-xl font-bold text-slate-100">Student</h3>
+                <p className="text-sm text-slate-400 mt-2">Browse menu, place orders, and track your food history.</p>
              </div>
            </button>
          </GlareHover>
@@ -1752,11 +1774,11 @@ const RoleSelector = ({ onSelect, currentTheme, onThemeChange }) => (
          <GlareHover
            width="100%"
            height="auto"
-           background="rgba(255,255,255,0.7)"
+           background="rgba(15,23,42,0.95)"
            borderRadius="24px"
-           borderColor="rgba(249,115,22,0.3)"
+           borderColor="rgba(249,115,22,0.4)"
            glareColor="#f97316"
-           glareOpacity={0.3}
+           glareOpacity={0.2}
            glareAngle={-30}
            glareSize={300}
            transitionDuration={600}
@@ -1767,12 +1789,12 @@ const RoleSelector = ({ onSelect, currentTheme, onThemeChange }) => (
              onClick={() => onSelect("staff")}
              className="w-full h-full p-8 flex flex-col items-center text-center gap-4"
            >
-             <div className="w-20 h-20 bg-orange-500/20 backdrop-blur-sm text-orange-600 rounded-2xl flex items-center justify-center mb-2">
+             <div className="w-20 h-20 bg-slate-800/80 backdrop-blur-sm text-orange-400 rounded-2xl flex items-center justify-center mb-2 border border-slate-700/40">
                 <ChefHat size={40} />
              </div>
              <div>
-                <h3 className="text-xl font-bold text-slate-800">Canteen Staff</h3>
-                <p className="text-sm text-slate-600 mt-2">Manage incoming orders, update status, and view sales.</p>
+                <h3 className="text-xl font-bold text-slate-100">Canteen Staff</h3>
+                <p className="text-sm text-slate-400 mt-2">Manage incoming orders, update status, and view sales.</p>
              </div>
            </button>
          </GlareHover>
